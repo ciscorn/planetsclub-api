@@ -1,0 +1,12 @@
+.DS_Store
+*.pyc
+*credential*
+*.retry
+.vscode
+.mypy_cache/
+.pytest_cache/
+.coverage
+.env
+.venv/
+__pycache__
+.benchmarks/

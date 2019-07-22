@@ -1,0 +1,44 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[scripts]
+dev = "sh -c 'DEBUG=1 exec uvicorn planetsclub:app --port 8005 --log-level info --reload --reload-dir=planetsclub'"
+prod = "gunicorn planetsclub:app -b '0.0.0.0:8005' -w 2 -k uvicorn.workers.UvicornWorker --forwarded-allow-ips '*' --log-level info"
+test = "pytest --cov=planetsclub"
+
+[dev-packages]
+black = "*"
+codecov = "*"
+flake8 = "*"
+flake8-bugbear = "*"
+mypy = "*"
+pytest = "*"
+pytest-asyncio = "*"
+pytest-cov = "*"
+
+[packages]
+aiohttp = "*"
+aioredis = "*"
+ariadne = "*"
+async_timeout = "*"
+certifi = "*"
+elasticsearch = "*"
+elasticsearch-async = "*"
+graphql-core = "*"
+gunicorn = "*"
+msgpack = "*"
+PyJWT = "*"
+python-dateutil = "*"
+python-multipart = "*"
+pytz = "*"
+starlette = "*"
+ujson = "*"
+uvicorn = "*"
+
+[requires]
+python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true

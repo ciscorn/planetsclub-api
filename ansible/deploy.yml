@@ -1,0 +1,24 @@
+- hosts: pca_frontend
+  become: yes
+  tasks:
+    - name: sync
+      synchronize:
+        src: "../../"
+        dest: /srv/webapp/planetsclub-api
+        delete: true
+        owner: no
+        recursive: true
+        rsync_opts:
+          - "--exclude=.venv"
+          - "--exclude=.git"
+          - "--exclude=.env"
+          - "--exclude=__pycache__"
+          - "--exclude=.benchmarks"
+          - "--exclude=.vscode"
+          - "--exclude=.coverage"
+    - name: pipenv sync
+      command: pipenv sync
+      args:
+        chdir: /srv/webapp/planetsclub-api
+    - name: graceful restart
+      command: /usr/bin/supervisorctl signal HUP planetsclub-api

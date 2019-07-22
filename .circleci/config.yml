@@ -1,0 +1,73 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: circleci/python:3.7.4
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+      - restore_cache:
+          keys:
+            - deps8-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Installing dependencies
+          command: pipenv install --dev
+      - save_cache:
+          key: deps8-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ./.venv
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.7/site-packages"
+      - run:
+          name: Run tests
+          command: pipenv run test
+      - run:
+          name: Codecov
+          command: pipenv run codecov
+  deploy:
+    docker:
+      - image: circleci/python:3.7.4
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+      - restore_cache:
+          keys:
+            - deps8-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Installing dependencies
+          command: pipenv install --dev
+      - save_cache:
+          key: deps8-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ./.venv
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.7/site-packages"
+      - add_ssh_keys
+      - run:
+          name: SSH setting
+          command: mkdir -p ~/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+      - run:
+          name: Installing rsync
+          command: sudo apt install -y rsync ansible
+      - run:
+          name: Deploying
+          command: ansible-playbook -i ansible/hosts ansible/deploy.yml --user=cicd -v
+workflows:
+  version: 2
+  test-and-deploy:
+    jobs:
+      - test
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master

@@ -1,0 +1,128 @@
+type Query {
+  archiveItem(id: ID!): ArchiveItem
+  archiveItems(
+    q: String
+    first: Int
+    last: Int
+    after: String
+    before: String
+  ): ArchiveItems!
+
+  me: User!
+  user(id: ID!): User
+  users(
+    q: String,
+    includeDeactivated: Boolean
+    first: Int
+    last: Int
+    after: String
+    before: String
+  ): Users
+}
+
+type Mutation {
+  deactivateUser(id: ID!): User
+  activateUser(id: ID!): User
+  addAdminRole(id: ID!): User
+  removeAdminRole(id: ID!): User
+  signInWithFacebook(accessToken: String!): SignInResult!
+  signOut: Boolean
+
+  updateArchiveItem(id: ID, input: ArchiveItemInput): ArchiveItem
+}
+
+type SignInResult {
+  user: User
+  error: String
+}
+
+# type Subscription {
+# }
+
+scalar DateTime
+
+interface Pagable {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  totalCount: Int
+  totalCountRel: String
+}
+
+enum ArchiveItemPrivacy {
+  PUBLIC
+  CLUB
+}
+
+type ArchiveItem {
+  id: ID!
+  title: String!
+  type: String!
+  series: String!
+  description: String!
+  body: String
+  htmlContent: String
+  length: Int
+  tags: [String!]!
+  # url: String
+  privacy: ArchiveItemPrivacy
+  source: String!
+  sourceId: String!
+  thumbnailUrl: String!
+  bodyHighlights: [String!]
+  publishedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: User
+  updatedBy: User
+}
+
+type ArchiveItems implements Pagable {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  totalCount: Int
+  totalCountRel: String
+  items: [ArchiveItem!]!
+}
+
+input ArchiveItemInput {
+  title: String!
+  type: String!
+  body: String!
+  series: String!
+  length: Int
+  tags: [String!]!
+  htmlContent: String!
+  # url: String!
+  source: String!
+  sourceId: String!
+  thumbnailUrl: String
+  publishedAt: DateTime!
+}
+
+type User {
+  id: ID
+  isAuthenticated: Boolean!
+  isActive: Boolean!
+  realName: String
+  email: String
+  isAdmin: Boolean
+  isMember: Boolean
+  googleId: String
+  facebookId: String
+  pictureUri: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+type Users implements Pagable {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  totalCount: Int
+  totalCountRel: String
+  items: [User!]!
+}
